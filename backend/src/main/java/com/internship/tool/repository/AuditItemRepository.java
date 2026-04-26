@@ -1,10 +1,13 @@
 package com.internship.tool.repository;
-
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+//import org.springframework.data.repository.query.Param;
 import com.internship.tool.entity.AuditItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+
 
 import java.time.LocalDateTime;
 
@@ -26,4 +29,12 @@ public interface AuditItemRepository extends JpaRepository<AuditItem, Long> {
 
     // ⚡ Soft delete filter
     Page<AuditItem> findByIsDeletedFalse(Pageable pageable);
+
+    @Query("SELECT a FROM AuditItem a WHERE a.dueDate < :now AND a.status != 'COMPLETED'")
+      List<AuditItem> findOverdueItems(LocalDateTime now);
+
+@Query("SELECT a FROM AuditItem a WHERE a.dueDate BETWEEN :start AND :end")
+       List<AuditItem> findUpcomingItems(LocalDateTime start, LocalDateTime end);
+
+long countByStatus(String status);
 }
