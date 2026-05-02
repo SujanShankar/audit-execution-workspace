@@ -2,6 +2,7 @@ package com.internship.tool.scheduler;
 
 import com.internship.tool.entity.AuditItem;
 import com.internship.tool.repository.AuditItemRepository;
+import com.internship.tool.service.EmailService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,20 +13,65 @@ import java.util.List;
 public class AuditScheduler {
 
     private final AuditItemRepository repository;
+    private final EmailService emailService;
 
-    public AuditScheduler(AuditItemRepository repository) {
+    public AuditScheduler(AuditItemRepository repository, EmailService emailService) {
         this.repository = repository;
+        this.emailService = emailService;
     }
 
-    @Scheduled(cron = "0 30 9 * * ?") // test every 10 sec
+    // 🔹 1. Overdue Items
+    @Scheduled(fixedRate = 15000) // every 15 sec (for testing)
     public void checkOverdueItems() {
-       LocalDateTime now = LocalDateTime.now();
-    LocalDateTime nextWeek = now.plusDays(7);
 
-    List<AuditItem> items = repository.findUpcomingItems(now, nextWeek);
+        List<AuditItem> overdue = repository.findOverdueItems(LocalDateTime.now());
 
-    items.forEach(item -> {
-        System.out.println("Upcoming: " + item.getTitle());
-    });
+        overdue.forEach(item -> {
+            System.out.println("Overdue: " + item.getTitle());
+
+            emailService.sendEmail(
+                    "sujantallur@gmail.com",
+                    "Overdue Audit Item",
+                    "Item overdue: " + item.getTitle()
+            );
+        });
+    }
+
+    // 🔹 2. Upcoming Deadlines (next 7 days)
+    @Scheduled(fixedRate = 20000) // every 20 sec
+    public void upcomingDeadlines() {
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextWeek = now.plusDays(7);
+
+        List<AuditItem> items = repository.findUpcomingItems(now, nextWeek);
+
+        items.forEach(item -> {
+            System.out.println("Upcoming: " + item.getTitle());
+
+            emailService.sendEmail(
+                    "sujantallur@gmail.com",
+                    "Upcoming Deadline",
+                    "Due soon: " + item.getTitle()
+            );
+        });
+    }
+
+    // 🔹 3. Weekly Summary
+    @Scheduled(fixedRate = 30000) // every 30 sec
+    public void weeklySummary() {
+
+        long total = repository.count();
+        long completed = repository.countByStatus("COMPLETED");
+
+        String summary = "Total: " + total + ", Completed: " + completed;
+
+        System.out.println("Weekly Summary: " + summary);
+
+        emailService.sendEmail(
+                "sujantallur@gmail.com",
+                "Weekly Audit Summary",
+                summary
+        );
     }
 }

@@ -1,0 +1,8 @@
+# Local overrides now live on the classpath — NOT next to pom.xml.
+#
+#   Copy: backend\src\main\resources\application-local.example.yml
+#     to: backend\src\main\resources\application-local.yml
+#
+# Then run: mvn spring-boot:run -Dspring-boot.run.profiles=local
+#
+# (A file named application-local.yml next to pom.xml is NOT loaded by Spring.)
