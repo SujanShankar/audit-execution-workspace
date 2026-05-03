@@ -3,5 +3,6 @@ backend/application-local.yml
 backend/src/main/resources/application-local.yml
 target/
 node_modules/
+venv/
 __pycache__/
-chroma_data/
+*.pyc
