@@ -3,6 +3,7 @@ package com.internship.tool.scheduler;
 import com.internship.tool.entity.AuditItem;
 import com.internship.tool.repository.AuditItemRepository;
 import com.internship.tool.service.EmailService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(name = "app.scheduler.enabled", havingValue = "true", matchIfMissing = false)
 public class AuditScheduler {
 
     private final AuditItemRepository repository;
@@ -21,7 +23,7 @@ public class AuditScheduler {
     }
 
     // 🔹 1. Overdue Items
-    @Scheduled(fixedRate = 15000) // every 15 sec (for testing)
+    @Scheduled(cron = "0 0 9 * * ?") // every 15 sec (for testing)
     public void checkOverdueItems() {
 
         List<AuditItem> overdue = repository.findOverdueItems(LocalDateTime.now());
@@ -38,7 +40,7 @@ public class AuditScheduler {
     }
 
     // 🔹 2. Upcoming Deadlines (next 7 days)
-    @Scheduled(fixedRate = 20000) // every 20 sec
+    @Scheduled(cron = "0 0 9 * * ?") // every 20 sec
     public void upcomingDeadlines() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -58,7 +60,7 @@ public class AuditScheduler {
     }
 
     // 🔹 3. Weekly Summary
-    @Scheduled(fixedRate = 30000) // every 30 sec
+    @Scheduled(cron = "0 0 9 * * ?") // every 30 sec
     public void weeklySummary() {
 
         long total = repository.count();

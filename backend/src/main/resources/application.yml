@@ -1,8 +1,17 @@
+server:
+  error:
+    include-message: always
+
 spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auditdb?options=-c%20TimeZone=UTC}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: jdbc:postgresql://localhost:5432/auditdb
+    username: postgres
+    password: postgres
 
   jpa:
     hibernate:
@@ -22,4 +31,12 @@ spring:
         smtp:
           auth: true
           starttls:
-            enable: true
+            enable: false
+  redis:
+    host: localhost
+    port: 6379
+
+# Must be top-level (not under spring:). Enable with true or APP_SCHEDULER_ENABLED=true
+app:
+  scheduler:
+    enabled: ${APP_SCHEDULER_ENABLED:false}
